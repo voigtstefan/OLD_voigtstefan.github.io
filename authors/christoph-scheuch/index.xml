@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Christoph Scheuch | Stefan Voigt</title>
+    <link>https://voigtstefan.me/authors/christoph-scheuch/</link>
+      <atom:link href="https://voigtstefan.me/authors/christoph-scheuch/index.xml" rel="self" type="application/rss+xml" />
+    <description>Christoph Scheuch</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Fri, 20 Mar 2020 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>img/map[gravatar:%!s(bool=false) shape:circle]</url>
+      <title>Christoph Scheuch</title>
+      <link>https://voigtstefan.me/authors/christoph-scheuch/</link>
+    </image>
+    
+    <item>
+      <title>Trust Takes Time: Limits to Arbitrage in Blockchain-Based Markets</title>
+      <link>https://voigtstefan.me/publication/trust-takes-time-limits-to-arbitrage-in-blockchain-based-markets/</link>
+      <pubDate>Fri, 20 Mar 2020 00:00:00 +0000</pubDate>
+      <guid>https://voigtstefan.me/publication/trust-takes-time-limits-to-arbitrage-in-blockchain-based-markets/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
