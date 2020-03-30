@@ -71,7 +71,7 @@ write_csv(summary_data, paste0(&amp;quot;output/LOBSTER_&amp;quot;,asset,&amp;qu
 &lt;/div&gt;
 &lt;div id=&#34;result-i-depth-in-spy-is-at-an-all-time-low&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Result I: Depth in SPY is at an all-time low&lt;/h2&gt;
-&lt;iframe src=&#34;http://voigtstefan.shinyapps.io/monthly_spy_data&#34;&gt;
+&lt;iframe src=&#34;http://voigtstefan.shinyapps.io/monthly_spy_data&#34; width=&#34;600&#34; height=&#34;800&#34; scrolling=&#34;no&#34; frameborder=&#34;no&#34;&gt;
 &lt;/iframe&gt;
 &lt;/div&gt;
 &lt;div id=&#34;result-ii-covid19-and-spy&#34; class=&#34;section level2&#34;&gt;
