@@ -31,7 +31,7 @@
   <meta name="description" content="A short  series of posts on handling high-frequency data from Lobster and R">
 
   
-  <link rel="alternate" hreflang="en-us" href="/post/lobster-1/">
+  <link rel="alternate" hreflang="en-us" href="https://voigtstefan.me/post/lobster-1/">
 
   
 
@@ -256,7 +256,7 @@
   <link rel="icon" type="image/png" href="/images/icon_hu87fd820f9c602e46bac9a6dd1500e016_118780_32x32_fill_lanczos_center_2.png">
   <link rel="apple-touch-icon" type="image/png" href="/images/icon_hu87fd820f9c602e46bac9a6dd1500e016_118780_192x192_fill_lanczos_center_2.png">
 
-  <link rel="canonical" href="/post/lobster-1/">
+  <link rel="canonical" href="https://voigtstefan.me/post/lobster-1/">
 
   
   
@@ -270,7 +270,7 @@
   <meta property="twitter:card" content="summary">
   
   <meta property="og:site_name" content="Stefan Voigt">
-  <meta property="og:url" content="/post/lobster-1/">
+  <meta property="og:url" content="https://voigtstefan.me/post/lobster-1/">
   <meta property="og:title" content="LobsteR - NASDAQ under a &#34;tidy&#34; Microscope | Stefan Voigt">
   <meta property="og:description" content="A short  series of posts on handling high-frequency data from Lobster and R"><meta property="og:image" content="img/map[gravatar:%!s(bool=false) shape:circle]">
   <meta property="twitter:image" content="img/map[gravatar:%!s(bool=false) shape:circle]"><meta property="og:locale" content="en-us">
@@ -302,7 +302,7 @@
   "@type": "BlogPosting",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "/post/lobster-1/"
+    "@id": "https://voigtstefan.me/post/lobster-1/"
   },
   "headline": "LobsteR - NASDAQ under a \"tidy\" Microscope",
   
@@ -319,7 +319,7 @@
     "name": "University of Copenhagen",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hu87fd820f9c602e46bac9a6dd1500e016_118780_192x192_fill_lanczos_center_2.png"
+      "url": "https://voigtstefan.me/images/icon_hu87fd820f9c602e46bac9a6dd1500e016_118780_192x192_fill_lanczos_center_2.png"
     }
   },
   "description": "A short  series of posts on handling high-frequency data from Lobster and R"
@@ -710,24 +710,25 @@
       
 
 
-<p>During my PhD studies, I have been working with high-frequency trading data provided by <a href="www.lobsterdata.com">Lobster</a> a lot for some of my <a href="https://www.voigtstefan.me/publication/large-scale-portfolio-optimization-under-transaction-costs-and-model-uncertainty/">research projects</a>.<br />
+<p>During my PhD studies, I have been working with high-frequency trading data provided by <a href="www.lobsterdata.com">Lobster</a> a lot for some of my <a href="../../publication/large-scale-portfolio-optimization-under-transaction-costs-and-model-uncertainty/">research projects</a>.<br />
 In this short series of posts, I want share some of my code and routines to efficiently handly the extremely large amounts of data that go through NASDAQs servers on a daily basis. In fact, if you look at the figure below, there is plenty to explore: during less than 2 minutes on March 17th, 2020, thousands of trades have been executed for SPY, a large ETF. The red line shows the traded prices during that period and the blue shaded areas show the dynamics of the orderbook. The darker the areas, the <em>more</em> liquidity (measured as size of the order book levels).</p>
 <p><img src="/post/2020-03-25-lobster-1_files/orderbook_dynamic.png" /></p>
-<p>First, I will provide some snippets to read-in Lobster files and to compute some potentially interesting statistics. In a second post, I illustrate long-run characteristics of the orderbook dynamics and I’ll finally focus some really recent events: the days since the outbreak of COVID19 have been extremely bumpy for <a href="https://en.wikipedia.org/wiki/SPDR_S%26P_500_Trust_ETF">SPY</a>, the largest ETF in the world and it is amazing to see, how liquidity supply changed during these rough days.</p>
+<p>First, I provide some snippets to read-in Lobster files and to compute some potentially interesting statistics. In a second post, I illustrate long-run characteristics of the orderbook dynamics and I’ll finally focus some really recent events: the days since the outbreak of COVID19 have been extremely bumpy for <a href="https://en.wikipedia.org/wiki/SPDR_S%26P_500_Trust_ETF">SPY</a>, the largest ETF in the world and it is amazing to see, how liquidity supply changed during these rough days.</p>
 <div id="handling-lobster-data" class="section level2">
 <h2>Handling Lobster Data</h2>
 <p><a href="www.lobsterdata.com">Lobster</a> is an online limit order book data tool to provide easy-to-use, high-quality limit order book data for the entire universe of NASDAQ traded stocks. I requested some of the data based on their online interface and stored it before running the code below.
-The actual data which I will use for the next post is much larger. I downloaded <strong>all</strong> trading messages for ticker SPY (order submissions, cancellations, trades, …) that went through NASDAQ since July, 27th 2007 until March, 25th, 2020. The files contain the entire orderbooks until level 10. So be careful, LOBSTER data is massive!</p>
+The actual data which I will use for the next post is much larger. I downloaded <strong>all</strong> trading messages for ticker SPY (order submissions, cancellations, trades, …) that went through NASDAQ since July, 27th 2007 until March, 25th, 2020. The files contain the entire orderbooks until level 10.</p>
 <div id="first-steps" class="section level3">
 <h3>First steps</h3>
 <p>I work in <strong>R</strong> with message level data from Lobster in a <em>tidy</em> and (hopefully) efficient way.</p>
 <pre class="r"><code>library(tidyverse)
 library(lubridate)</code></pre>
 <p>As an example, I illustrate the computations for a tiny glimpse of March 17th, 2020. Lobster files always come with the same naming convention <code>ticker_date_34200000_57600000_filetype_level.csv</code>, whereas <code>filetype</code> either denotes <code>message</code> or the corresponding <code>orderbook</code> snapshots.</p>
-<pre class="r"><code>date &lt;- &quot;2020-03-17&quot;
+<pre class="r"><code>asset &lt;- &quot;SPY&quot;
+date &lt;- &quot;2020-03-17&quot;
 level &lt;- 10
-messages_filename &lt;- paste0(&quot;SPY_&quot;,date,&quot;_34200000_57600000_message_&quot;, level,&quot;.csv&quot;)
-orderbook_filename &lt;- paste0(&quot;SPY_&quot;,date,&quot;_34200000_57600000_orderbook_&quot;, level,&quot;.csv&quot;)</code></pre>
+messages_filename &lt;- paste0(asset,&quot;_&quot;,date,&quot;_34200000_57600000_message_&quot;, level,&quot;.csv&quot;)
+orderbook_filename &lt;- paste0(asset, &quot;_&quot;,date,&quot;_34200000_57600000_orderbook_&quot;, level,&quot;.csv&quot;)</code></pre>
 <p>Let’s have a look at the raw message feed first.</p>
 <pre class="r"><code>messages_raw &lt;- read_csv(messages_filename, 
                 col_names = c(&quot;ts&quot;, &quot;type&quot;, &quot;order_id&quot;, &quot;m_size&quot;, &quot;m_price&quot;, 
@@ -1023,7 +1024,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="https://twitter.com/intent/tweet?url=/post/lobster-1/&amp;text=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-twitter">
+        <a href="https://twitter.com/intent/tweet?url=https://voigtstefan.me/post/lobster-1/&amp;text=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-twitter">
           <i class="fab fa-twitter"></i>
         </a>
       </li>
@@ -1036,7 +1037,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="https://www.facebook.com/sharer.php?u=/post/lobster-1/&amp;t=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-facebook">
+        <a href="https://www.facebook.com/sharer.php?u=https://voigtstefan.me/post/lobster-1/&amp;t=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-facebook">
           <i class="fab fa-facebook"></i>
         </a>
       </li>
@@ -1049,7 +1050,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="mailto:?subject=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope&amp;body=/post/lobster-1/" target="_blank" rel="noopener" class="share-btn-email">
+        <a href="mailto:?subject=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope&amp;body=https://voigtstefan.me/post/lobster-1/" target="_blank" rel="noopener" class="share-btn-email">
           <i class="fas fa-envelope"></i>
         </a>
       </li>
@@ -1062,7 +1063,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="https://www.linkedin.com/shareArticle?url=/post/lobster-1/&amp;title=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-linkedin">
+        <a href="https://www.linkedin.com/shareArticle?url=https://voigtstefan.me/post/lobster-1/&amp;title=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-linkedin">
           <i class="fab fa-linkedin-in"></i>
         </a>
       </li>
@@ -1075,7 +1076,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="https://web.whatsapp.com/send?text=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope%20/post/lobster-1/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+        <a href="https://web.whatsapp.com/send?text=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope%20https://voigtstefan.me/post/lobster-1/" target="_blank" rel="noopener" class="share-btn-whatsapp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </li>
@@ -1088,7 +1089,7 @@ p1 &lt;- ggplot() +
       
       
       <li>
-        <a href="https://service.weibo.com/share/share.php?url=/post/lobster-1/&amp;title=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-weibo">
+        <a href="https://service.weibo.com/share/share.php?url=https://voigtstefan.me/post/lobster-1/&amp;title=LobsteR%20-%20NASDAQ%20under%20a%20&amp;#34;tidy&amp;#34;%20Microscope" target="_blank" rel="noopener" class="share-btn-weibo">
           <i class="fab fa-weibo"></i>
         </a>
       </li>
